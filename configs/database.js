@@ -1,36 +1,25 @@
-const sql = require('mssql');
+const mysql = require('mysql2/promise');
 
-// Default config
-const defaultConfig = {
-    user: process.env.DB_USER_NAME,
-    password: process.env.DB_PASS,
-    server: process.env.HOST,
-    port: parseInt(process.env.DB_PORT),
+const pool = mysql.createPool({
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    options: {
-        encrypt: false, // true for Azure, false for local dev
-        trustServerCertificate: true, // required for self-signed certs
-        enableArithAbort: true
-    },
-    pool: {
-        max: 10,
-        min: 0,
-        idleTimeoutMillis: 30000
-    }
-}
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    charset: 'utf8mb4', 
+});
 
-const poolPromise = new sql.ConnectionPool(defaultConfig)
-    .connect()
-    .then(pool => {
-        console.log("Connected to SQL Server successfully");
-        return pool;
+pool.getConnection()
+    .then(conn => {
+        console.log('Connected to Railway MySQL!');
+        conn.release();
     })
     .catch(err => {
-        console.log("Error connecting to SQL Server", err);
-        throw err;
-    })
+        console.error('Connection failed:', err.message);
+});
 
-module.exports = {
-    sql, poolPromise
-}
-
+  
+module.exports = pool;
