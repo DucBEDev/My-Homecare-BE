@@ -23,7 +23,7 @@ module.exports.login = async (req, res) => {
             })
         }
 
-        const tokenExpiry = result.tokenExpiry ? new Date(tokenExpiry) : null;
+        const tokenExpiry = result.tokenExpiry ? new Date(result.tokenExpiry) : null;
         const today = new Date();
         let token = result.token;
         let newTokenCreated = false;
