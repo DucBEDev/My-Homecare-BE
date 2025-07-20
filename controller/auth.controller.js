@@ -58,6 +58,7 @@ module.exports.login = async (req, res) => {
             accId: result.accId,
             fullName: result.fullName,
             role: result.roleName,
+            permissionList: result.permissionList,
             newTokenCreated
         });
     } catch (error) {

@@ -1,4 +1,4 @@
-class Order {
+class Orders {
     constructor(ordId, cusId, ordDate, paymentType, workingAddress, startDate, endDate, serviceId, status, updatedAt, updatedBy) {
         this.ordId = ordId;
         this.cusId = cusId;
@@ -14,4 +14,4 @@ class Order {
     }
 }
 
-module.exports = Order;
+module.exports = Orders;
