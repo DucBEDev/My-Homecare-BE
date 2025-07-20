@@ -9,6 +9,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 // Config CORS to handle connect FE and BE
 const cors = require('cors');
 app.use(cors({

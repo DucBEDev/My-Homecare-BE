@@ -7,10 +7,11 @@ class OrderRepository {
     }
 
     async orderListBaseOnType(status) {
-        const query = 
-            `
-                    
-            `
+        const query = `
+            SELECT
+                o.orderId, o.orderDate, o.workingArea
+            FROM Orders AS o
+        `
 
         const [result] = await pool.execute(query);
         return result[0] || null; 

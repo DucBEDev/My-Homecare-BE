@@ -52,14 +52,19 @@ module.exports.login = async (req, res) => {
             newTokenCreated = true;
         }
 
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', 
+            sameSite: 'None',
+            maxAge: 24 * 60 * 60 * 1000
+        });
+
         return res.json({
-            token,
             hmrId: result.hmrId,
             accId: result.accId,
             fullName: result.fullName,
             role: result.roleName,
             permissionList: result.permissionList,
-            newTokenCreated
         });
     } catch (error) {
         console.error("Login error:", error);
