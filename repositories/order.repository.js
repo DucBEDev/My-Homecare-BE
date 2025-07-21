@@ -9,8 +9,7 @@ class OrderRepository {
     async getOrderList({ status = 'all', search, fromDate, toDate, page = 1, limit = 10 }) {
         let query = `
             SELECT
-                o.ordId, o.ordDate,
-                o.workingAddress AS addressCustomers,
+                o.ordId, o.ordDate, o.status,
                 c.phone AS phoneNumberCustomers,
                 sc.name AS serviceCategory,
                 (
