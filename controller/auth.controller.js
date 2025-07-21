@@ -60,8 +60,6 @@ module.exports.login = async (req, res) => {
         });
 
         return res.json({
-            hmrId: result.hmrId,
-            accId: result.accId,
             fullName: result.fullName,
             role: result.roleName,
             permissionList: result.permissionList,
