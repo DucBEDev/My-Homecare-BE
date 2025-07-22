@@ -6,7 +6,7 @@ class OrderRepository {
         this.tableName = 'Orders'
     }
 
-    async getOrderList({ status = 'all', search, fromDate, toDate, page = 1, limit = 10 }) {
+    async getOrderList({ status = 'all', search, convertFromDate, convertToDate, page = 1, limit = 10 }) {
         let query = `
             SELECT
                 o.ordId, o.ordDate, o.status,
@@ -38,9 +38,9 @@ class OrderRepository {
         }
 
         // Filter date range
-        if (fromDate && toDate) {
+        if (convertFromDate && convertToDate) {
             query += ` AND DATE(o.ordDate) BETWEEN ? AND ?`;
-            params.push(fromDate, toDate);
+            params.push(convertFromDate, convertToDate);
         }
     
         // Sort
