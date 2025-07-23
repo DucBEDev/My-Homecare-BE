@@ -8,10 +8,12 @@ class CustomerRepository {
     async getCustomerList({ status = 'all', search, page = 1, limit = 10 }) {
         let query = `
             SELECT
-                c.fullName, c.phone AS phoneNumber, c.address, c.point,
-                a.status
+                c.fullName, c.phone AS phoneNumber, c.point,
+                a.status,
+                l.addressNum, l.ward, l.city
             FROM Customer AS c
             INNER JOIN Account AS a ON a.accId = c.accId
+            INNER JOIN Location AS l ON l.locationId = c.locationId
             WHERE 1 = 1
         `;
     
