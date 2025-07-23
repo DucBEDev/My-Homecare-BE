@@ -20,7 +20,7 @@ module.exports.getOrders = async (req, res) => {
         const formatResult = result.map(ele => {
             return {
                 ...ele,
-                ordDate: moment(ele.ordDate).format('DD/MM/YYYY')
+                orderDate: moment(ele.orderDate).format('DD/MM/YYYY HH:mm:ss')
             }
         })
 
