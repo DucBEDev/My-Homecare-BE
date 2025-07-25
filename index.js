@@ -16,8 +16,6 @@ app.use(cookieParser());
 const cors = require('cors');
 app.use(cors({
     origin: ['http://localhost:5173'],
-    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
 }));
 
