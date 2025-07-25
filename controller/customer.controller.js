@@ -6,21 +6,10 @@ module.exports.getCustomerList = async (req, res) => {
 
         const result = await customerRepository.getCustomerList({ status, search, page, limit });
 
-        const formattedResult = result.map(row => ({
-            fullName: row.fullName,
-            phoneNumber: row.phoneNumber,
-            point: row.point,
-            status: row.status,
-            location: {
-                address: row.addressNum,
-                ward: row.ward,
-                city: row.city
-            }
-        }));
-
         res.json({
             success: true,
-            result: formattedResult
+            result: result.data,
+            totalCustomers: result.total
         });
     } catch (err) {
         console.error(err);

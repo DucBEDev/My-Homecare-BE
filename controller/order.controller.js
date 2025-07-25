@@ -17,7 +17,7 @@ module.exports.getOrders = async (req, res) => {
 
         const result = await orderRepository.getOrderList({status, search, convertFromDate, convertToDate, page, limit});
 
-        const formatResult = result.map(ele => {
+        const formatResult = result.data.map(ele => {
             return {
                 ...ele,
                 orderDate: moment(ele.orderDate).format('DD/MM/YYYY HH:mm:ss')
@@ -26,9 +26,28 @@ module.exports.getOrders = async (req, res) => {
 
         res.json({ 
             success: true, 
-            result: formatResult
+            result: formatResult,
+            totalOrders: result.total
         });
     } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, error: 'Server error!' });
+    }
+}
+
+// [GET] /admin/order/detail
+module.exports.getOrderDetail = async (req, res) => {
+    try {
+        const { type } = req.query;
+
+        if (type == 'all') {
+            const result = await orderRepository.getOrderDetail();
+            console.log(result)
+
+        } else {
+
+        }
+    } catch (error) {
         console.error(err);
         res.status(500).json({ success: false, error: 'Server error!' });
     }

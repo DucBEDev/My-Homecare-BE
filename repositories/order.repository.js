@@ -7,16 +7,7 @@ class OrderRepository {
     }
 
     async getOrderList({ status = 'all', search, convertFromDate, convertToDate, page = 1, limit = 10 }) {
-        let query = `
-            SELECT
-                o.ordId AS orderId, o.ordDate AS orderDate, o.status,
-                c.phone AS phoneNumberCustomers,
-                sc.name AS serviceCategory,
-                (
-                    SELECT SUM(ordDetailCost)
-                    FROM OrderDetail od
-                    WHERE od.ordId = o.ordId
-                ) AS cost
+        let baseQuery = `
             FROM Orders AS o
             INNER JOIN Customer AS c ON c.cusId = o.cusId
             INNER JOIN ServiceCategory AS sc ON sc.categoryId = o.serviceCatId
@@ -27,33 +18,61 @@ class OrderRepository {
     
         // Filter status
         if (status !== 'all') {
-            query += ` AND o.status = ?`;
+            baseQuery += ` AND o.status = ?`;
             params.push(status);
         }
     
         // Search by ordId
         if (search) {
-            query += ` AND o.ordId LIKE ?`;
+            baseQuery += ` AND o.ordId LIKE ?`;
             params.push(`%${search}%`);
         }
-
+    
         // Filter date range
         if (convertFromDate && convertToDate) {
-            query += ` AND DATE(o.ordDate) BETWEEN ? AND ?`;
+            baseQuery += ` AND DATE(o.ordDate) BETWEEN ? AND ?`;
             params.push(convertFromDate, convertToDate);
         }
-    
-        // Sort
-        query += ` ORDER BY o.ordDate DESC`;
-    
-        // Pagination
+        
         const offset = (page - 1) * limit;
-        query += ` LIMIT ${offset}, ${limit}`;
+        const dataQuery = `
+            SELECT
+                o.ordId AS orderId, o.ordDate AS orderDate, o.status,
+                c.phone AS phoneNumberCustomers,
+                sc.name AS serviceCategory,
+                (
+                    SELECT SUM(ordDetailCost)
+                    FROM OrderDetail od
+                    WHERE od.ordId = o.ordId
+                ) AS cost
+            ${baseQuery}
+            ORDER BY o.ordDate DESC
+            LIMIT ${Number(offset)}, ${Number(limit)}
+        `;
+        const [dataResult] = await pool.execute(dataQuery, params);
     
-        const [result] = await pool.execute(query, params);
-        return result;
+        const countQuery = `
+            SELECT COUNT(*) AS total
+            ${baseQuery}
+        `;
+        const [countResult] = await pool.execute(countQuery, params);
+        const total = countResult[0]?.total || 0;
+    
+        return {
+            total,
+            data: dataResult
+        };
     }
     
+
+    async getOrderDetail() {
+        const query = `
+            SELECT
+                o.ordId AS orderId, o.ordDate AS orderDate, o.paymentType, 
+            FROM Orders o
+
+        `
+    }
 }
 
 module.exports = new OrderRepository();

@@ -6,11 +6,7 @@ class CustomerRepository {
     }
 
     async getCustomerList({ status = 'all', search, page = 1, limit = 10 }) {
-        let query = `
-            SELECT
-                c.fullName, c.phone AS phoneNumber, c.point,
-                a.status,
-                l.addressNum, l.ward, l.city
+        let baseQuery = `
             FROM Customer AS c
             INNER JOIN Account AS a ON a.accId = c.accId
             INNER JOIN Location AS l ON l.locationId = c.locationId
@@ -21,23 +17,43 @@ class CustomerRepository {
     
         // Filter status
         if (status !== 'all') {
-            query += ` AND a.status = ?`;
+            baseQuery += ` AND a.status = ?`;
             params.push(status);
         }
     
-        // Search by ordId
+        // Search by phone
         if (search) {
-            query += ` AND c.phone LIKE ?`;
+            baseQuery += ` AND c.phone LIKE ?`;
             params.push(`%${search}%`);
         }
     
-        // Pagination
         const offset = (page - 1) * limit;
-        query += ` LIMIT ${offset}, ${limit}`;
+        const dataQuery = `
+            SELECT
+                c.fullName, c.phone AS phoneNumber, c.point,
+                a.status,
+                JSON_OBJECT(
+                    'addressNum', l.addressNum,
+                    'ward', l.ward,
+                    'city', l.city
+                ) AS location
+            ${baseQuery}
+            LIMIT ${Number(offset)}, ${Number(limit)}
+        `;
+        const [dataResult] = await pool.execute(dataQuery, params);
     
-        const [result] = await pool.execute(query, params);
-        return result;
-    }
+        const countQuery = `
+            SELECT COUNT(*) AS total
+            ${baseQuery}
+        `;
+        const [countResult] = await pool.execute(countQuery, params);
+        const total = countResult[0]?.total || 0;
+    
+        return {
+            total,
+            data: dataResult
+        };
+    }    
     
 }
 
