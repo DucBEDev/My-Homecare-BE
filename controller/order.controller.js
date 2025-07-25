@@ -1,19 +1,14 @@
 const pool = require('../configs/database');
 const orderRepository = require('../repositories/order.repository');
 const moment = require('moment');
-
-function convertToISODate(dateStr) {
-    if (!dateStr) return null;
-    const [day, month, year] = dateStr.split('/');
-    return `${year}-${month}-${day}`;
-}
+const convertDateHelper = require('../helpers/convertDate.helper');
   
 // [GET] /admin/order
 module.exports.getOrders = async (req, res) => {
     try {
-        const {status, search, fromDate, toDate, page, limit} = req.query;
-        const convertFromDate = fromDate ? convertToISODate(fromDate) : null;
-        const convertToDate = toDate ? convertToISODate(toDate) : null;
+        const { status, search, fromDate, toDate, page, limit } = req.query;
+        const convertFromDate = fromDate ? convertDateHelper.convertToISODate(fromDate) : null;
+        const convertToDate = toDate ? convertDateHelper.convertToISODate(toDate) : null;
 
         const result = await orderRepository.getOrderList({status, search, convertFromDate, convertToDate, page, limit});
 

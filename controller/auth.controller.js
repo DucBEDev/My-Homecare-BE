@@ -4,7 +4,7 @@ const pool = require('../configs/database');
 const SECRET_KEY = process.env.SECRET_KEY;
 const accountRepository = require('../repositories/account.repository');
 
-// [POST] /admin/login
+// [POST] /admin/auth/login
 module.exports.login = async (req, res) => {
     const { hmrId, password } = req.body;
 
@@ -56,10 +56,9 @@ module.exports.login = async (req, res) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production', 
             sameSite: 'None',
-            maxAge: 24 * 60 * 60 * 1000
         });
 
-        return res.json({
+        return res.status(200).json({
             fullName: result.fullName,
             role: result.roleName,
             permissionList: result.permissionList,
@@ -68,4 +67,17 @@ module.exports.login = async (req, res) => {
         console.error("Login error:", error);
         return res.status(500).json({ message: "Server error!" });
     }
+}
+
+// [GET] /admin/auth/validate
+module.exports.validLogin = async (req, res) => {
+    // res.clearCookie('token', {
+    //     httpOnly: true,
+    //     sameSite: 'None',
+    //     secure: process.env.NODE_ENV === 'production'
+    // });
+    return res.status(200).json({
+        message: 'Authenticated',
+        user: req.user
+    })
 }
