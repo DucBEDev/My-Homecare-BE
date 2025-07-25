@@ -32,9 +32,9 @@ module.exports.login = async (req, res) => {
             // Create new token
             token = jwt.sign(
                 {
-                    accId: result.accId,
-                    hmrId: result.hmrId,
-                    role: result.roleName
+                    fullName: result.fullName,
+                    role: result.roleName,
+                    permissionList: result.permissionList
                 },
                 SECRET_KEY,
                 { expiresIn: '1d' }
