@@ -19,7 +19,7 @@ module.exports.getOrders = async (req, res) => {
             }
         })
 
-        res.json({ 
+        res.status(200).json({ 
             success: true, 
             result: formatResult,
             totalOrders: result.total

@@ -55,6 +55,22 @@ class CustomerRepository {
         };
     }    
     
+    async findByPhone(phone) {
+        const query = `
+            SELECT
+                c.cusId, c.fullName, c.phone,
+                JSON_OBJECT(
+                    'addressNum', l.addressNum,
+                    'ward', l.ward,
+                    'city', l.city
+                ) AS location
+            FROM Customer c
+            INNER JOIN Location l ON c.locationId = l.locationId
+            WHERE c.phone = ${phone}
+        `;
+        const [result] = await pool.execute(query);
+        return result[0];
+    }
 }
 
 module.exports = new CustomerRepository();

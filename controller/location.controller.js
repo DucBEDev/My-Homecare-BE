@@ -7,7 +7,7 @@ module.exports.getProvinceList = async (req, res) => {
 
         const result = await locationRepository.getProvinceList({ search });
         
-        res.json({
+        res.status(200).json({
             success: true,
             result: result,
         });
@@ -25,7 +25,7 @@ module.exports.getWardList = async (req, res) => {
 
         const result = await locationRepository.getWardList({ provinceCode, search });
         
-        res.json({
+        res.status(200).json({
             success: true,
             result: result,
         });
