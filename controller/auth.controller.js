@@ -26,7 +26,6 @@ module.exports.login = async (req, res) => {
         const tokenExpiry = result.tokenExpiry ? new Date(result.tokenExpiry) : null;
         const today = new Date();
         let token = result.token;
-        let newTokenCreated = false;
 
         if (!token || !tokenExpiry || tokenExpiry < new Date(today.toDateString())) {
             // Create new token
@@ -48,8 +47,6 @@ module.exports.login = async (req, res) => {
                 'UPDATE Account SET token = ?, tokenExpiry = ? WHERE accId = ?',
                 [token, expiryDateString, result.accId]
             );
-            
-            newTokenCreated = true;
         }
 
         res.cookie('token', token, {
@@ -71,13 +68,31 @@ module.exports.login = async (req, res) => {
 
 // [GET] /admin/auth/validate
 module.exports.validLogin = async (req, res) => {
-    // res.clearCookie('token', {
-    //     httpOnly: true,
-    //     sameSite: 'None',
-    //     secure: process.env.NODE_ENV === 'production'
-    // });
-    return res.status(200).json({
-        message: 'Authenticated',
-        user: req.user
-    })
+    try {
+        return res.status(200).json({
+            message: 'Authenticated',
+            user: req.user
+        })
+    } catch (error) {
+        console.error("Login error:", error);
+        return res.status(500).json({ message: "Server error!" });
+    }
+}
+
+// [POST] /admin/auth/logout
+module.exports.logout = async (req, res) => {
+    try {
+        res.clearCookie('token', {
+            httpOnly: true,
+            sameSite: 'None',
+            secure: process.env.NODE_ENV === 'production'
+        });
+    
+        return res.status(200).json({
+            message: 'Logout successful'
+        });
+    } catch (error) {
+        console.error("Login error:", error);
+        return res.status(500).json({ message: "Server error!" });
+    }
 }

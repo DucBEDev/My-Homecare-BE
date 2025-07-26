@@ -43,7 +43,7 @@ class humanResourceRepository {
         const offset = (page - 1) * limit;
         const dataQuery = `
             SELECT
-                h.fullName, h.phone AS phoneNumber, h.birthDate AS dateOfBirth,
+                h.fullName, h.phone AS phoneNumber, h.birthDate AS dateOfBirth, h.workingStatus,
                 a.status,
                 JSON_OBJECT(
                     'addressNum', l.addressNum,
