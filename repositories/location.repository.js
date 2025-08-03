@@ -68,6 +68,33 @@ class LocationRepository {
         return result;
     }
 
+    async getNextLocId() {
+        const [rows] = await pool.execute(`
+            SELECT locationId 
+            FROM Location 
+            ORDER BY locationId DESC LIMIT 1
+        `);
+        let lastId = rows[0]?.locationId || 'LOC0000000';
+
+        // Create new accId
+        const numberPart = parseInt(lastId.replace('LOC', ''), 10) + 1;
+        const newLocId = 'LOC' + numberPart.toString().padStart(7, '0');
+
+        return newLocId;
+    }
+
+    async findLocation(location) {
+        const { addressNum, ward, city } = location;
+        const query = `
+            SELECT locationId
+            FROM Location
+            WHERE addressNum = ? AND ward = ? AND city = ?
+        `;
+
+        const [result] = await pool.execute(query, [addressNum, ward, city]);
+
+        return result[0]?.locationId;
+    }
 }
 
 module.exports = new LocationRepository();

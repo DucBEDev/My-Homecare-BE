@@ -71,6 +71,21 @@ class CustomerRepository {
         const [result] = await pool.execute(query);
         return result[0];
     }
+
+    async getNextCusId() {
+        const [rows] = await pool.execute(`
+            SELECT cusId 
+            FROM Customer 
+            ORDER BY cusId DESC LIMIT 1
+        `);
+        let lastId = rows[0]?.cusId || 'CUS0000000';
+
+        // Create new cusId
+        const numberPart = parseInt(lastId.replace('CUS', ''), 10) + 1;
+        const newCusId = 'CUS' + numberPart.toString().padStart(7, '0');
+
+        return newCusId;
+    }
 }
 
 module.exports = new CustomerRepository();
