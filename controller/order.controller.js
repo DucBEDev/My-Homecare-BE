@@ -6,6 +6,8 @@ const convertDateHelper = require('../helpers/convertDate.helper');
 const orderRepository = require('../repositories/order.repository');
 const accountRepository = require('../repositories/account.repository');
 const locationRepository = require('../repositories/location.repository');
+const serviceRepository = require('../repositories/service.repository');
+const genSettingRepository = require('../repositories/genSetting.repository');
   
 // [GET] /admin/order
 module.exports.getOrders = async (req, res) => {
@@ -53,7 +55,7 @@ module.exports.getOrderDetail = async (req, res) => {
 }
 
 // [POST] /admin/order/add
-module.exports.addOrder = async (req, res) => {
+module.exports.addOrderPost = async (req, res) => {
     try {
         const { 
             phoneNumberCustomer, fullNameCustomer, locationCustomer, serviceType, workDays, workTime, 
@@ -99,6 +101,32 @@ module.exports.addOrder = async (req, res) => {
 
         return res.status(200).json({
             success: true
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, error: 'Server error!' });
+    }
+}
+
+// [GET] /admin/order/add
+module.exports.addOrder = async (req, res) => {
+    try {
+        // Get active service list
+        const serviceList = await serviceRepository.getServiceList('active');
+
+        // Get open/close hour, fee
+        const systemSetting = await genSettingRepository.getSetting();
+
+        return res.status(200).json({
+            success: true,
+            serviceList,
+            systemSetting: {
+                openHours: systemSetting.openHours,
+                closeHours: systemSetting.closeHours,
+                platformFee: systemSetting.platformFee,
+                otherFee: systemSetting.otherFee,
+                helperShare: systemSetting.helperShare,
+            }
         });
     } catch (error) {
         console.log(error);
