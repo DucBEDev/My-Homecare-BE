@@ -128,7 +128,7 @@ class OrderRepository {
             const nextOrdId = await this.getNextOrdId();
 
             await conn.execute(
-                `INSERT INTO Orders (ordId, cusId, paymentType, startDate, endDate, serviceCatId, status, locationId, discId)
+                `INSERT INTO Orders (ordId, cusId, paymentType, startDate, endDate, serviceId, status, locationId, discId)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) `,
                 [nextOrdId, cusId, paymentType, formatWorkStartDate, formatWorkEndDate, serviceType, 'pending', locationId, discountString]
             );
