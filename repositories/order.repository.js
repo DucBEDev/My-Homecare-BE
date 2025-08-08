@@ -10,7 +10,7 @@ class OrderRepository {
         let baseQuery = `
             FROM Orders AS o
             INNER JOIN Customer AS c ON c.cusId = o.cusId
-            INNER JOIN ServiceCategory AS sc ON sc.categoryId = o.serviceCatId
+            INNER JOIN Service AS s ON s.serviceId = o.serviceId
             WHERE 1 = 1
         `;
     
@@ -39,7 +39,7 @@ class OrderRepository {
             SELECT
                 o.ordId AS orderId, o.ordDate AS orderDate, o.status,
                 c.phone AS phoneNumberCustomers,
-                sc.name AS serviceCategory,
+                s.title AS serviceName,
                 (
                     SELECT SUM(ordDetailCost)
                     FROM OrderDetail od

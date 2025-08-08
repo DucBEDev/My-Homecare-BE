@@ -25,6 +25,12 @@ module.exports.checkExist = async (req, res) => {
         const { cusPhone } = req.params;
 
         const customer = await customerRepository.findByPhone(cusPhone);
+        if (!customer) {
+            return res.status(404).json({
+                success: 'false',
+                message: "Customer not found"
+            })
+        }
         const disCusList = await discountRepository.getListOnCusId(customer.cusId);
 
         res.status(200).json({
