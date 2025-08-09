@@ -1,5 +1,6 @@
 const Orders = require('../models/orders.model');
 const pool = require('../configs/database');
+const moment = require('moment');
 
 class OrderRepository {
     constructor() {
@@ -64,13 +65,55 @@ class OrderRepository {
         };
     }
     
-    async getOrderDetail() {
-        const query = `
+    async getOrderDetail(ordId) {
+        const ordQuery = `
             SELECT
-                o.ordId AS orderId, o.ordDate AS orderDate, o.paymentType, 
+                o.ordId AS orderId, o.ordDate AS orderDate, o.paymentType, o.status,
+                c.fullName AS fullNameCustomer, c.phone AS phoneCustomer,
+                JSON_OBJECT(
+                    'addressNum', l.addressNum,
+                    'ward', l.ward,
+                    'city', l.city
+                ) AS workingLocation,
+                d.title AS discountTitle, d.percentage AS discountPercentage
             FROM Orders o
+            INNER JOIN Customer c ON o.cusId = c.cusId
+            INNER JOIN Location l ON o.locationId = l.locationId
+            LEFT JOIN Discount d ON o.discId = d.disId
+            WHERE o.ordId = ?
+        `;
+        const [ordResult] = await pool.execute(ordQuery, [ordId]);
 
-        `
+        if (ordResult.length == 0) {
+            return null;
+        }
+
+        const detailQuery = `
+            SELECT 
+                od.detailId, od.workingDate, od.ordDetailCost, od.helperCost, od.isLoseThings,
+                od.isBreakThings, od.comment, od.rating, od.status, od.workStartedAt, od.workEndedAt,
+                JSON_OBJECT(
+                    'helperId', h.hmrId,
+                    'fullName', h.fullName,
+                    'phone', h.phone
+                ) AS helperInfo
+            FROM OrderDetail od
+            LEFT JOIN HumanResource h ON od.helperId = h.hmrId
+            WHERE od.ordId = ?
+        `;
+        const [detailResult] = await pool.execute(detailQuery, [ordId]);
+
+        const formatDetail = detailResult.map(ele => {
+            return {
+                ...ele,
+                workingDate: moment(ele.workingDate).format('DD/MM/YYYY')
+            }
+        })
+
+        return {
+            ...ordResult[0],
+            details: formatDetail
+        };
     }
 
     async getNextOrdId() {

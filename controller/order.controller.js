@@ -36,20 +36,26 @@ module.exports.getOrders = async (req, res) => {
     }
 }
 
-// [GET] /admin/order/detail
+// [GET] /admin/order/detail/:ordId
 module.exports.getOrderDetail = async (req, res) => {
     try {
-        const { type } = req.query;
+        const ordId = req.params.ordId;
+        const result = await orderRepository.getOrderDetail(ordId);
 
-        if (type == 'all') {
-            const result = await orderRepository.getOrderDetail();
-            console.log(result)
-
-        } else {
-
+        if (result == null) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found!"
+            })
         }
+        result.orderDate = moment(result.orderDate).format('DD/MM/YYYY HH:mm:ss');
+
+        return res.status(200).json({
+            success: true,
+            order: result
+        })
     } catch (error) {
-        console.error(err);
+        console.error(error);
         res.status(500).json({ success: false, error: 'Server error!' });
     }
 }
